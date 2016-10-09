@@ -1,5 +1,3 @@
-
-
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -26,6 +24,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 import java.awt.Color;
 
 /* 
@@ -39,10 +40,10 @@ public class Main extends JFrame implements ActionListener {
 	private JButton review = new JButton("Review Mistakes");
 	private JButton viewStats = new JButton("View Statistics");
 	private JButton clearStats = new JButton("Clear Statistics");
-
+	private JButton newButton;
 	private JPanel menuPanel = new JPanel();
-	private int _level;
-	private String _wordlist = "NZcer_spelling.txt";
+	private String _level="";
+	private String _wordlist = ".\\NZCER-spelling-lists.txt";
 
 	public Main() {
 		setResizable(false);
@@ -83,36 +84,18 @@ public class Main extends JFrame implements ActionListener {
 		panel.setBounds(21, 11, 650, 450);
 		menuPanel.add(panel);
 		
-		ImageIcon img = new ImageIcon("C:\\Users\\ip569\\Desktop\\Voxspell_banner.jpg");
+		ImageIcon img = new ImageIcon(".\\img\\Voxspell_banner.jpg");
 		JLabel imga = new JLabel(img);
 		panel.add(imga);
 		
 		ImageIcon setting = new ImageIcon("C:\\Users\\ip569\\Downloads\\settings-1630709_640.png");
-		Image img2 = setting.getImage();
-		Image newimg = img2.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
-		setting = new ImageIcon(newimg); 
-		JButton btnNewButton = new JButton(setting);
-		btnNewButton.setBounds(602, 478, 69, 61);
-		menuPanel.add(btnNewButton);
+		setting = Images.scaleImage(60,60,setting); 
+		newButton= new JButton(setting);
+		newButton.setBounds(602, 478, 69, 61);
+		menuPanel.add(newButton);
+		
+		newButton.addActionListener(this);
 	}
-
-	private void levelSelect() {
-		String[] levelStrings = { "1", "2", "3", "4", "5", "6", "7", "8", 
-				"9", "10", "11" };
-		final JComboBox<String> combo = new JComboBox<>(levelStrings);
-		String[] options = { "OK" };
-
-
-		String num = (String) JOptionPane.showInputDialog(this, "Please select a level", "Level Select", 
-				JOptionPane.PLAIN_MESSAGE, null, levelStrings, levelStrings[0]);
-		if(num==null){
-			this.dispose();
-		}else{
-		_level = Integer.parseInt(num);
-		this.setVisible(true);
-		}
-	}
-
 	
 
 	
@@ -132,16 +115,8 @@ public class Main extends JFrame implements ActionListener {
 					JOptionPane.showMessageDialog(this, "No wordlist file is found!!\n(Please place wordlist file in the working directory)", "Warning", getDefaultCloseOperation());
 					//If there is no word inside the lsit
 				}else{ 
-					WordList word = new WordList("NZCER-spelling-lists.txt");
-					if(word.getWordCount(_level)<1){
-						JOptionPane.showMessageDialog(this, "No word to be tested!!", "Warning", getDefaultCloseOperation());
-					}else{
-						//else start the quiz
-						setVisible(false);
-						Quiz q = new Quiz("NZCER-spelling-lists.txt",this, _level);
-
-						q.setVisible(true);
-					}
+					SelectCategory select = new SelectCategory(new WordList(_wordlist));
+					select.setVisible(true);
 				}
 				return;  
 				//If review button is clicked
@@ -153,15 +128,6 @@ public class Main extends JFrame implements ActionListener {
 					JOptionPane.showMessageDialog(this, "No failed word to be tested!!", "Warning", getDefaultCloseOperation());
 				}else{ 
 
-					WordList word = new WordList(".failed",_level);
-					if(word.getWordCount(_level)<1){
-						JOptionPane.showMessageDialog(this, "No failed word to be tested!!", "Warning", getDefaultCloseOperation());
-					}else{
-						//else start the review
-						setVisible(false);
-						Quiz q = new Quiz(".failed",this, _level);
-						q.setVisible(true);
-					}
 				}
 				return;  
 				//If viewStats button is clicked
@@ -180,7 +146,9 @@ public class Main extends JFrame implements ActionListener {
 				}
 
 				return;  
-			} 
+			}else if(button.equals(newButton)){
+				chooseFile();
+			}
 			//If exception is caught
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -215,21 +183,19 @@ public class Main extends JFrame implements ActionListener {
 		
 	}
 
-	public void nextLevel(){
-		_level++;
-	}
 
 	/*
 	 * main method that brings up the main menu
 	 */
-	public static void main(String[] agrs){
+	public static void main(String[] agrs) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
+		 UIManager.setLookAndFeel(
+		            UIManager.getSystemLookAndFeelClassName());
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				Main frame = new Main();
 				frame.createAccuracy();
 				frame.setVisible(true);
-				frame.chooseFile();
 			}
 		});
 	}
@@ -290,7 +256,7 @@ public class Main extends JFrame implements ActionListener {
 		int returnValue = chooser.showOpenDialog(null);
 		if (returnValue == JFileChooser.APPROVE_OPTION) {
 	          File selectedFile = chooser.getSelectedFile();
-	          
+	          _wordlist = selectedFile.getAbsolutePath();
 	      }
 	}
 }

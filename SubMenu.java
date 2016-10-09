@@ -29,18 +29,16 @@ public class SubMenu extends JFrame implements ActionListener{
 	private JButton nextLevel = new JButton("Go to Next Level");
 	private JButton repeat = new JButton("Repeat Quiz");
 	private JButton video = new JButton("Play Video!!");
-	
+	private WordList _wordList;
 	private JPanel menuPanel = new JPanel();
-	private int _level;
+	private String _level;
 	private Main _main;
-	private String _file;
 	private JButton stats = new JButton("View Stats!!");
 	
-	public SubMenu(String file, Main main, int level, int correct, int testNum){
+	public SubMenu(WordList wordList, String level, int correct, int testNum){
 		//Setting the size of the main menu and choosing the layout of it.
-				_file = file;
-				_main = main;
-				_level = level;
+			_wordList = wordList;	
+			_level = level;
 		
 		
 		setSize(700,600);
@@ -93,14 +91,13 @@ public class SubMenu extends JFrame implements ActionListener{
 			dispose();
 		}else if(button.equals(repeat)){
 			dispose();
-			Quiz q = new Quiz("NZCER-spelling-lists.txt",_main, _level);
+			Quiz q = new Quiz(_wordList, _level);
 			q.setVisible(true);
 		}else if(button.equals(stats)){
 			_main.makeTable();
 			
 		}else if(button.equals(nextLevel)){
 			_main.setVisible(true);
-			_main.nextLevel();
 			dispose();
 		}else if(button.equals(video)){
 			MediaPlayer player = new MediaPlayer();
